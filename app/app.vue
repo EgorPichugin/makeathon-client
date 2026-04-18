@@ -9,54 +9,91 @@ import type { GlobalThemeOverrides } from 'naive-ui'
 import { NConfigProvider, darkTheme } from 'naive-ui'
 
 useHead({
-  title: 'Spherecast — AI Ingredient Agent',
+  title: 'Spherecast — Ingredient Agent',
   link: [
-    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+    { rel: 'preconnect', href: 'https://cdn.prod.website-files.com', crossorigin: '' },
     {
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inter+Tight:wght@400;500;600;700&display=swap'
+      rel: 'preload',
+      as: 'font',
+      href: 'https://cdn.prod.website-files.com/68d1019362216d12f87a9446/68d1019362216d12f87a948d_Creato%20Display%20Regular.woff2',
+      type: 'font/woff2',
+      crossorigin: ''
+    },
+    {
+      rel: 'preload',
+      as: 'font',
+      href: 'https://cdn.prod.website-files.com/68d1019362216d12f87a9446/68d1019362216d12f87a948e_Creato%20Display%20Medium.woff2',
+      type: 'font/woff2',
+      crossorigin: ''
     }
   ]
 })
 
 const themeOverrides: GlobalThemeOverrides = {
   common: {
-    primaryColor: '#6aa8ff',
-    primaryColorHover: '#8ec0ff',
-    primaryColorPressed: '#3b82f6',
-    primaryColorSuppl: '#6aa8ff',
-    borderRadius: '12px',
+    primaryColor: '#9ac8ff',
+    primaryColorHover: '#b8d9ff',
+    primaryColorPressed: '#6aa8ff',
+    primaryColorSuppl: '#9ac8ff',
+    borderRadius: '0px',
     fontFamily:
-      '"Inter Tight", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
+      '"Creato Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
+    fontFamilyMono:
+      '"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace',
     bodyColor: 'transparent',
-    textColorBase: '#e7ecf5'
+    textColorBase: '#e7e8eb'
   },
-  Card: { borderRadius: '20px' },
+  Card: { borderRadius: '0px' },
   Input: {
-    borderRadius: '12px',
-    color: 'rgba(255,255,255,0.03)',
-    colorFocus: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderHover: '1px solid rgba(106,168,255,0.45)',
-    borderFocus: '1px solid rgba(106,168,255,0.6)',
-    boxShadowFocus: '0 0 0 2px rgba(106,168,255,0.18)'
+    borderRadius: '0px',
+    color: 'rgba(255,255,255,0.02)',
+    colorFocus: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(231,232,235,0.12)',
+    borderHover: '1px solid rgba(154,200,255,0.45)',
+    borderFocus: '1px solid rgba(154,200,255,0.6)',
+    boxShadowFocus: '0 0 0 2px rgba(154,200,255,0.14)'
   },
-  Button: { borderRadius: '999px' }
+  Button: { borderRadius: '0px' }
 }
 </script>
 
 <style>
+@font-face {
+  font-family: 'Creato Display';
+  src: url('https://cdn.prod.website-files.com/68d1019362216d12f87a9446/68d1019362216d12f87a948d_Creato%20Display%20Regular.woff2')
+    format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Creato Display';
+  src: url('https://cdn.prod.website-files.com/68d1019362216d12f87a9446/68d1019362216d12f87a948e_Creato%20Display%20Medium.woff2')
+    format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('https://cdn.prod.website-files.com/68d1019362216d12f87a9446/68d1019362216d12f87a9483_JetBrainsMono-Regular.woff2')
+    format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 html,
 body,
 #__nuxt {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: #05070d;
-  color: #e7ecf5;
-  font-family: 'Inter Tight', Inter, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, Arial, sans-serif;
+  height: 100%;
+  background: #0e1216;
+  color: #e7e8eb;
+  font-family: 'Creato Display', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -70,5 +107,10 @@ body,
 a {
   color: inherit;
   text-decoration: none;
+}
+
+::selection {
+  background-color: #9ac8ff;
+  color: #e7e8eb;
 }
 </style>
