@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     transpile: ['naive-ui', 'vueuc']
   },
   runtimeConfig: {
-    agentBaseUrl: process.env.AGENT_BASE_URL || 'http://127.0.0.1:8000'
+    agentBaseUrl: process.env.AGENT_BASE_URL
   },
   vite: {
     resolve: {

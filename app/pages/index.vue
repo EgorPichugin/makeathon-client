@@ -3,7 +3,7 @@
     <header class="topbar">
       <a class="brand" href="#">
         <span class="brand-mark" aria-hidden="true" />
-        <span class="brand-name">Spherecast</span>
+        <span class="brand-name">Agnes-mini</span>
       </a>
       <div class="topbar-meta">
         <span class="mono-label">
@@ -15,7 +15,6 @@
     </header>
 
     <main class="workbench">
-      <!-- LEFT: chat panel -->
       <section class="panel panel-chat" aria-label="Chat window">
         <div class="panel-head">
           <span class="panel-kicker">01 · Conversation</span>
@@ -71,55 +70,6 @@
           </div>
         </form>
       </section>
-
-      <!-- RIGHT: agent workflow panel -->
-      <section class="panel panel-workflow" aria-label="Agent workflow">
-        <div class="panel-head">
-          <span class="panel-kicker">02 · Agent workflow</span>
-          <button
-            v-if="steps.length"
-            type="button"
-            class="btn btn-ghost btn-sm"
-            @click="clearSteps"
-          >
-            Clear log
-          </button>
-        </div>
-
-        <div class="workflow">
-          <div v-if="!steps.length" class="workflow-empty">
-            <div class="empty-sphere" aria-hidden="true">
-              <span class="sphere sphere-lg" />
-            </div>
-            <p class="empty-title">No runs yet</p>
-            <p class="empty-sub">
-              Send a question on the left — the agent's plan, tool calls and
-              output will stream here.
-            </p>
-          </div>
-
-          <ol v-else class="timeline">
-            <li
-              v-for="step in steps"
-              :key="step.id"
-              :class="['step', `step-${step.status}`]"
-            >
-              <div class="step-rail">
-                <span class="step-node" />
-                <span class="step-line" />
-              </div>
-              <div class="step-body">
-                <div class="step-head">
-                  <span class="step-kind">{{ step.kind }}</span>
-                  <span class="step-time">{{ formatTime(step.at) }}</span>
-                </div>
-                <p class="step-label">{{ step.label }}</p>
-                <pre v-if="step.detail" class="step-detail">{{ step.detail }}</pre>
-              </div>
-            </li>
-          </ol>
-        </div>
-      </section>
     </main>
   </div>
 </template>
@@ -136,35 +86,21 @@ type ChatMessage = {
   text: string
 }
 
-type StepStatus = 'pending' | 'running' | 'done' | 'error'
-
-type WorkflowStep = {
-  id: number
-  kind: string
-  label: string
-  status: StepStatus
-  at: number
-  detail?: string
-}
-
 const initialPrompt =
   'I would like to find another component instead of RM-C28-glycerin-85e43afb from Ingredion company in FG-iherb-10421 product'
 
 const draft = ref(initialPrompt)
 const isLoading = ref(false)
 const nextMsgId = ref(2)
-const nextStepId = ref(1)
 const scrollArea = ref<HTMLElement | null>(null)
 
 const messages = ref<ChatMessage[]>([
   {
     id: 1,
     role: 'assistant',
-    text: 'Paste a component question on the left and I will query the local agent for an alternative. The right panel will show every step the agent takes.'
+    text: 'Paste a component question and I will query the local agent for an alternative.'
   }
 ])
-
-const steps = ref<WorkflowStep[]>([])
 
 const appendMessage = (role: Role, text: string) => {
   messages.value.push({ id: nextMsgId.value++, role, text })
@@ -172,42 +108,6 @@ const appendMessage = (role: Role, text: string) => {
     if (scrollArea.value) {
       scrollArea.value.scrollTop = scrollArea.value.scrollHeight
     }
-  })
-}
-
-const addStep = (
-  kind: string,
-  label: string,
-  status: StepStatus = 'running',
-  detail?: string
-) => {
-  const step: WorkflowStep = {
-    id: nextStepId.value++,
-    kind,
-    label,
-    status,
-    at: Date.now(),
-    detail
-  }
-  steps.value.push(step)
-  return step
-}
-
-const markStep = (step: WorkflowStep, status: StepStatus, detail?: string) => {
-  step.status = status
-  if (detail !== undefined) step.detail = detail
-}
-
-const clearSteps = () => {
-  steps.value = []
-}
-
-const formatTime = (ts: number) => {
-  const d = new Date(ts)
-  return d.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
   })
 }
 
@@ -219,13 +119,7 @@ const sendMessage = async () => {
   draft.value = ''
   isLoading.value = true
 
-  const s1 = addStep('input', 'Received user request', 'done', message)
-  const s2 = addStep('plan', 'Preparing request for agent API')
-  const s3 = addStep('network', 'POST /agent/request (thread 1)')
-
   try {
-    markStep(s2, 'done')
-
     const response = await $fetch<{ answer: string; raw?: unknown }>(
       '/api/agent-request',
       {
@@ -233,28 +127,12 @@ const sendMessage = async () => {
         body: { thread_id: '1', message }
       }
     )
-
-    markStep(s3, 'done', 'HTTP 200 · response received')
-
-    const s4 = addStep('parse', 'Parsing agent payload', 'done')
-    if (response.raw) {
-      try {
-        s4.detail = JSON.stringify(response.raw, null, 2).slice(0, 800)
-      } catch {
-        /* ignore */
-      }
-    }
-
-    addStep('answer', 'Final answer delivered to chat', 'done', response.answer)
     appendMessage('assistant', response.answer)
   } catch (error) {
     const fallback =
       error instanceof Error
         ? error.message
         : 'The request failed before the agent returned a response.'
-
-    markStep(s3, 'error', fallback)
-    addStep('answer', 'Agent request failed', 'error', fallback)
     appendMessage('assistant', fallback)
   } finally {
     isLoading.value = false
@@ -363,7 +241,7 @@ const sendMessage = async () => {
 /* ---------------- Workbench grid ---------------- */
 .workbench {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   padding: 24px 40px 40px;
   min-height: 0;
@@ -613,21 +491,6 @@ const sendMessage = async () => {
   border-color: #9ac8ff;
 }
 
-.btn-ghost {
-  background: transparent;
-  color: #e7e8eb;
-  border-color: rgba(231, 232, 235, 0.22);
-}
-.btn-ghost:hover:not(:disabled) {
-  border-color: #9ac8ff;
-  color: #9ac8ff;
-}
-
-.btn-sm {
-  padding: 0.5rem 1.1rem;
-  font-size: 0.7rem;
-}
-
 /* ---------------- Sphere decoration ---------------- */
 .sphere {
   border-radius: 999px;
@@ -645,176 +508,6 @@ const sendMessage = async () => {
 .sphere-sm {
   width: 16px;
   height: 16px;
-}
-.sphere-lg {
-  width: 72px;
-  height: 72px;
-  box-shadow:
-    inset -10px -14px 32px rgba(0, 0, 0, 0.6),
-    inset 6px 8px 22px rgba(255, 255, 255, 0.22),
-    0 0 60px rgba(154, 200, 255, 0.28);
-}
-
-/* ---------------- Workflow timeline ---------------- */
-.workflow {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding-right: 6px;
-  position: relative;
-}
-.workflow::-webkit-scrollbar {
-  width: 6px;
-}
-.workflow::-webkit-scrollbar-thumb {
-  background: rgba(231, 232, 235, 0.14);
-}
-
-.workflow-empty {
-  height: 100%;
-  min-height: 280px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 14px;
-  color: #919191;
-  position: relative;
-}
-
-.empty-sphere {
-  margin-bottom: 8px;
-}
-
-.empty-title {
-  margin: 0;
-  font-family: 'Creato Display', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #e7e8eb;
-  letter-spacing: -0.01em;
-}
-
-.empty-sub {
-  margin: 0;
-  max-width: 40ch;
-  font-size: 0.9rem;
-  line-height: 1.55;
-  color: #919191;
-}
-
-.timeline {
-  list-style: none;
-  margin: 0;
-  padding: 4px 0 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.step {
-  position: relative;
-  display: grid;
-  grid-template-columns: 20px 1fr;
-  gap: 14px;
-  padding: 14px 0 18px;
-}
-
-.step-rail {
-  position: relative;
-  width: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.step-node {
-  position: relative;
-  z-index: 2;
-  margin-top: 6px;
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: #0e1216;
-  border: 1.5px solid #9ac8ff;
-}
-
-.step-line {
-  position: absolute;
-  left: 50%;
-  top: 14px;
-  bottom: -18px;
-  width: 1px;
-  background: rgba(231, 232, 235, 0.1);
-  transform: translateX(-0.5px);
-}
-
-.step:last-child .step-line {
-  display: none;
-}
-
-.step-running .step-node {
-  background: #9ac8ff;
-  box-shadow: 0 0 0 3px rgba(154, 200, 255, 0.2);
-  animation: pulse 1.4s ease-in-out infinite;
-}
-.step-done .step-node {
-  background: #9ac8ff;
-  border-color: #9ac8ff;
-}
-.step-error .step-node {
-  background: #ff7a7a;
-  border-color: #ff7a7a;
-}
-
-.step-body {
-  min-width: 0;
-}
-
-.step-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 6px;
-}
-
-.step-kind {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: #9ac8ff;
-}
-.step-error .step-kind {
-  color: #ff7a7a;
-}
-
-.step-time {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
-  color: #919191;
-}
-
-.step-label {
-  margin: 0;
-  font-size: 0.98rem;
-  line-height: 1.45;
-  color: #e7e8eb;
-}
-
-.step-detail {
-  margin: 10px 0 0;
-  padding: 12px 14px;
-  background: rgba(231, 232, 235, 0.03);
-  border: 1px solid rgba(231, 232, 235, 0.08);
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.8rem;
-  line-height: 1.5;
-  color: #c8cdd5;
-  white-space: pre-wrap;
-  word-break: break-word;
-  max-height: 220px;
-  overflow: auto;
 }
 
 /* ---------------- Responsive ---------------- */
