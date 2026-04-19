@@ -30,7 +30,12 @@
               <span class="bubble-label">
                 {{ item.role === 'user' ? 'You' : 'Spherecast' }}
               </span>
-              <p>{{ item.text }}</p>
+              <p v-if="item.role === 'user'">{{ item.text }}</p>
+              <div
+                v-else
+                class="markdown-body"
+                v-html="renderAssistantMarkdown(item.text)"
+              />
             </div>
           </div>
 
@@ -75,6 +80,7 @@
 </template>
 
 <script setup lang="ts">
+import MarkdownIt from 'markdown-it'
 import { NInput } from 'naive-ui'
 import { nextTick, ref } from 'vue'
 
@@ -93,6 +99,11 @@ const draft = ref(initialPrompt)
 const isLoading = ref(false)
 const nextMsgId = ref(2)
 const scrollArea = ref<HTMLElement | null>(null)
+const markdown = new MarkdownIt({
+  html: false,
+  linkify: true,
+  breaks: true
+})
 
 const messages = ref<ChatMessage[]>([
   {
@@ -110,6 +121,8 @@ const appendMessage = (role: Role, text: string) => {
     }
   })
 }
+
+const renderAssistantMarkdown = (text: string) => markdown.render(text)
 
 const sendMessage = async () => {
   const message = draft.value.trim()
@@ -342,6 +355,53 @@ const sendMessage = async () => {
 .bubble p {
   margin: 0;
   white-space: pre-wrap;
+}
+
+.markdown-body {
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+
+.markdown-body :deep(p) {
+  margin: 0;
+}
+
+.markdown-body :deep(p + p) {
+  margin-top: 0.8em;
+}
+
+.markdown-body :deep(ul),
+.markdown-body :deep(ol) {
+  margin: 0.6em 0 0;
+  padding-left: 1.2em;
+}
+
+.markdown-body :deep(li + li) {
+  margin-top: 0.3em;
+}
+
+.markdown-body :deep(a) {
+  color: #9ac8ff;
+}
+
+.markdown-body :deep(code) {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.86em;
+  padding: 0.05em 0.35em;
+  background: rgba(231, 232, 235, 0.08);
+}
+
+.markdown-body :deep(pre) {
+  margin: 0.8em 0 0;
+  padding: 0.75rem;
+  background: rgba(231, 232, 235, 0.04);
+  border: 1px solid rgba(231, 232, 235, 0.1);
+  overflow-x: auto;
+}
+
+.markdown-body :deep(pre code) {
+  padding: 0;
+  background: transparent;
 }
 
 .bubble-user {
