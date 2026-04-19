@@ -137,7 +137,8 @@ const sendMessage = async () => {
       '/api/agent-request',
       {
         method: 'POST',
-        body: { thread_id: '1', message }
+        body: { thread_id: '1', message },
+        timeout: 600000
       }
     )
     appendMessage('assistant', response.answer)

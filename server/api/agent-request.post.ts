@@ -53,7 +53,8 @@ export default defineEventHandler(async (event) => {
       body: {
         thread_id: body.thread_id || '1',
         message: body.message
-      }
+      },
+      timeout: 600000
     })
 
     return {
